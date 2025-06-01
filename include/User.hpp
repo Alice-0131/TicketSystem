@@ -36,6 +36,7 @@ public:
   std::pair<User, bool> query_profile(std::string &cur_username, std::string &username);
   std::pair<User, bool> modify_profile(std::string &cur_username, std::string &username, std::string &password,
     std::string &name, std::string &mailAddr, int privilege);
+  void clean();
 };
 
 #endif //USER_HPP

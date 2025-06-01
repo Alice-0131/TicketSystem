@@ -111,24 +111,10 @@ CMakeFiles/TicketSystem.dir/src/User.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TicketSystem.dir/src/User.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/User.cpp -o CMakeFiles/TicketSystem.dir/src/User.cpp.s
 
-CMakeFiles/TicketSystem.dir/src/Train.cpp.o: CMakeFiles/TicketSystem.dir/flags.make
-CMakeFiles/TicketSystem.dir/src/Train.cpp.o: ../src/Train.cpp
-CMakeFiles/TicketSystem.dir/src/Train.cpp.o: CMakeFiles/TicketSystem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/TicketSystem.dir/src/Train.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TicketSystem.dir/src/Train.cpp.o -MF CMakeFiles/TicketSystem.dir/src/Train.cpp.o.d -o CMakeFiles/TicketSystem.dir/src/Train.cpp.o -c /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Train.cpp
-
-CMakeFiles/TicketSystem.dir/src/Train.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TicketSystem.dir/src/Train.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Train.cpp > CMakeFiles/TicketSystem.dir/src/Train.cpp.i
-
-CMakeFiles/TicketSystem.dir/src/Train.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TicketSystem.dir/src/Train.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Train.cpp -o CMakeFiles/TicketSystem.dir/src/Train.cpp.s
-
 CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o: CMakeFiles/TicketSystem.dir/flags.make
 CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o: ../src/Ticket.cpp
 CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o: CMakeFiles/TicketSystem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o -MF CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o.d -o CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o -c /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Ticket.cpp
 
 CMakeFiles/TicketSystem.dir/src/Ticket.cpp.i: cmake_force
@@ -139,13 +125,27 @@ CMakeFiles/TicketSystem.dir/src/Ticket.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TicketSystem.dir/src/Ticket.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Ticket.cpp -o CMakeFiles/TicketSystem.dir/src/Ticket.cpp.s
 
+CMakeFiles/TicketSystem.dir/src/Time.cpp.o: CMakeFiles/TicketSystem.dir/flags.make
+CMakeFiles/TicketSystem.dir/src/Time.cpp.o: ../src/Time.cpp
+CMakeFiles/TicketSystem.dir/src/Time.cpp.o: CMakeFiles/TicketSystem.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/TicketSystem.dir/src/Time.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TicketSystem.dir/src/Time.cpp.o -MF CMakeFiles/TicketSystem.dir/src/Time.cpp.o.d -o CMakeFiles/TicketSystem.dir/src/Time.cpp.o -c /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Time.cpp
+
+CMakeFiles/TicketSystem.dir/src/Time.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TicketSystem.dir/src/Time.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Time.cpp > CMakeFiles/TicketSystem.dir/src/Time.cpp.i
+
+CMakeFiles/TicketSystem.dir/src/Time.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TicketSystem.dir/src/Time.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/Time.cpp -o CMakeFiles/TicketSystem.dir/src/Time.cpp.s
+
 # Object files for target TicketSystem
 TicketSystem_OBJECTS = \
 "CMakeFiles/TicketSystem.dir/src/main.cpp.o" \
 "CMakeFiles/TicketSystem.dir/src/TokenScanner.cpp.o" \
 "CMakeFiles/TicketSystem.dir/src/User.cpp.o" \
-"CMakeFiles/TicketSystem.dir/src/Train.cpp.o" \
-"CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o"
+"CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o" \
+"CMakeFiles/TicketSystem.dir/src/Time.cpp.o"
 
 # External object files for target TicketSystem
 TicketSystem_EXTERNAL_OBJECTS =
@@ -153,8 +153,8 @@ TicketSystem_EXTERNAL_OBJECTS =
 TicketSystem: CMakeFiles/TicketSystem.dir/src/main.cpp.o
 TicketSystem: CMakeFiles/TicketSystem.dir/src/TokenScanner.cpp.o
 TicketSystem: CMakeFiles/TicketSystem.dir/src/User.cpp.o
-TicketSystem: CMakeFiles/TicketSystem.dir/src/Train.cpp.o
 TicketSystem: CMakeFiles/TicketSystem.dir/src/Ticket.cpp.o
+TicketSystem: CMakeFiles/TicketSystem.dir/src/Time.cpp.o
 TicketSystem: CMakeFiles/TicketSystem.dir/build.make
 TicketSystem: CMakeFiles/TicketSystem.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable TicketSystem"

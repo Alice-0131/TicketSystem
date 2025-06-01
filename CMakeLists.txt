@@ -15,8 +15,8 @@ add_executable(TicketSystem src/main.cpp
         src/TokenScanner.cpp
         src/User.cpp
         include/User.hpp
-        src/Train.cpp
-        include/Train.hpp
         src/Ticket.cpp
         include/Ticket.hpp
+        src/Time.cpp
+        include/Time.hpp
 )

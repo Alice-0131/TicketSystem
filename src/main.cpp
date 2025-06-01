@@ -26,6 +26,8 @@ int main() {
 void processLine(std::string& line, UserSystem &user_system) {
   TokenScanner scanner(line);
   std::string token = scanner.nextToken();
+  std::cout << token << ' ';
+  token = scanner.nextToken();
   if (token.empty()) {
     return;
   }

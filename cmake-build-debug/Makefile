@@ -153,6 +153,30 @@ src/Ticket.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Ticket.cpp.s
 .PHONY : src/Ticket.cpp.s
 
+src/Time.o: src/Time.cpp.o
+.PHONY : src/Time.o
+
+# target to build an object file
+src/Time.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Time.cpp.o
+.PHONY : src/Time.cpp.o
+
+src/Time.i: src/Time.cpp.i
+.PHONY : src/Time.i
+
+# target to preprocess a source file
+src/Time.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Time.cpp.i
+.PHONY : src/Time.cpp.i
+
+src/Time.s: src/Time.cpp.s
+.PHONY : src/Time.s
+
+# target to generate assembly for a file
+src/Time.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Time.cpp.s
+.PHONY : src/Time.cpp.s
+
 src/TokenScanner.o: src/TokenScanner.cpp.o
 .PHONY : src/TokenScanner.o
 
@@ -176,30 +200,6 @@ src/TokenScanner.s: src/TokenScanner.cpp.s
 src/TokenScanner.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/TokenScanner.cpp.s
 .PHONY : src/TokenScanner.cpp.s
-
-src/Train.o: src/Train.cpp.o
-.PHONY : src/Train.o
-
-# target to build an object file
-src/Train.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Train.cpp.o
-.PHONY : src/Train.cpp.o
-
-src/Train.i: src/Train.cpp.i
-.PHONY : src/Train.i
-
-# target to preprocess a source file
-src/Train.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Train.cpp.i
-.PHONY : src/Train.cpp.i
-
-src/Train.s: src/Train.cpp.s
-.PHONY : src/Train.s
-
-# target to generate assembly for a file
-src/Train.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/TicketSystem.dir/build.make CMakeFiles/TicketSystem.dir/src/Train.cpp.s
-.PHONY : src/Train.cpp.s
 
 src/User.o: src/User.cpp.o
 .PHONY : src/User.o
@@ -261,12 +261,12 @@ help:
 	@echo "... src/Ticket.o"
 	@echo "... src/Ticket.i"
 	@echo "... src/Ticket.s"
+	@echo "... src/Time.o"
+	@echo "... src/Time.i"
+	@echo "... src/Time.s"
 	@echo "... src/TokenScanner.o"
 	@echo "... src/TokenScanner.i"
 	@echo "... src/TokenScanner.s"
-	@echo "... src/Train.o"
-	@echo "... src/Train.i"
-	@echo "... src/Train.s"
 	@echo "... src/User.o"
 	@echo "... src/User.i"
 	@echo "... src/User.s"
