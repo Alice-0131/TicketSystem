@@ -19,66 +19,83 @@ inline long long Hash(std::string &s) {
 const int M = 50;
 const int L = 50;
 
-struct pair {
-  long long index;
-  int value;
-
-  pair():index(0), value(0){}
-  pair(long long i, int v): index(i), value(v){}
-};
-
-// 索引块
-struct IndexBlock {
-  int ptr;            // 此块在文件中的位置
-  bool flag;          // 是否为叶节点
-  int size;           // 关键字数量
-  pair data[M + 5];  // 关键字
-  int child[M + 5]{};// 子节点位置
-
-  IndexBlock(int p = -1, bool f = true, int s = 0): ptr(p), flag(f), size(s){}
-};
-
-// 数据块
-struct DataBlock {
-  int ptr;          // 此块在文件中的位置
-  int size;         // 存放的数据数量
-  pair data[L + 5];// 存放的数据
-  int nxt;          // 下一个数据块的位置
-
-  DataBlock(int p = -1, int s = 1, int n = -1): ptr(p), size(s), nxt(n){}
-};
-
+template<class KEY>
 class BPT {
 private:
+  struct pair {
+    KEY index;
+    int value;
+
+    pair():index(0), value(0){}
+    pair(KEY i, int v): index(i), value(v){}
+    bool operator<(const pair other) {
+      if (index < other.index) {
+        return true;
+      } else if (index > other.index) {
+        return false;
+      } else {
+        if (value < other.value) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    bool operator==(const pair &other) const {
+      return (index == other.index && value == other.value);
+    }
+  };
+
+  // 索引块
+  struct IndexBlock {
+    int ptr;            // 此块在文件中的位置
+    bool flag;          // 是否为叶节点
+    int size;           // 关键字数量
+    pair data[M + 5];  // 关键字
+    int child[M + 5]{};// 子节点位置
+
+    IndexBlock(int p = -1, bool f = true, int s = 0): ptr(p), flag(f), size(s){}
+  };
+
+  // 数据块
+  struct DataBlock {
+    int ptr;          // 此块在文件中的位置
+    int size;         // 存放的数据数量
+    pair data[L + 5];// 存放的数据
+    int nxt;          // 下一个数据块的位置
+
+    DataBlock(int p = -1, int s = 1, int n = -1): ptr(p), size(s), nxt(n){}
+  };
+
   MemoryRiver<IndexBlock> index_file;
   MemoryRiver<DataBlock> data_file;
   int index_root;
   int size_of_index;
   int size_of_data;
-
-  int compare(pair a, pair b) {
-    if (a.index < b.index) {
-      return -1;
-    }
-    if (a.index > b.index) {
-      return 1;
-    }
-    if (a.value < b.value) {
-      return -1;
-    }
-    if (a.value == b.value) {
-      return 0;
-    }
-    else {
-      return 1;
-    }
-  }
+  // int compare(pair a, pair b) {
+  //   if (a.index < b.index) {
+  //     return -1;
+  //   }
+  //   if (a.index > b.index) {
+  //     return 1;
+  //   }
+  //   if (a.value < b.value) {
+  //     return -1;
+  //   }
+  //   if (a.value == b.value) {
+  //     return 0;
+  //   }
+  //   else {
+  //     return 1;
+  //   }
+  // }
 
   int upper_bound(pair a[], int size, pair target) { // 第一个大于target的下标
     int l = 0, r = size - 1;
     while (l <= r) {
       int mid = (l + r) / 2;
-      if (compare(a[mid], target) <= 0) {
+      if (a[mid] < target) {
         l = mid + 1;
       } else {
         r = mid - 1;
@@ -87,11 +104,12 @@ private:
     return l;
   }
 
-  int lower_bound(pair a[], int size, long long target) { // 第一个大于等于target的下标
+  int lower_bound(pair a[], int size, KEY target) { // 第一个大于等于target的下标
     int l = 0, r = size;
     while (l < r) {
       int mid = (l + r) / 2;
-      if (a[mid].index < target) {
+      KEY i = a[mid].index;
+      if (i < target) {
         l = mid + 1;
       } else {
         r = mid;
@@ -181,7 +199,7 @@ private:
         return false;
       }
       --k;
-      if (compare(data_block.data[k], pair_) != 0) {
+      if (!data_block.data[k]== pair_) {
         return false;
       }
       --data_block.size;
@@ -428,7 +446,7 @@ public:
     data_file.close();
   }
 
-  void Insert(long long index, int value) {
+  void Insert(KEY index, int value) {
     index_file.open();
     data_file.open();
     pair pair_(index, value);
@@ -467,7 +485,7 @@ public:
     data_file.close();
   }
 
-  void Delete(long long index, int value) {
+  void Delete(KEY index, int value) {
     index_file.open();
     data_file.open();
     pair pair_(index, value);
@@ -488,7 +506,7 @@ public:
     data_file.close();
   }
 
-  sjtu::vector<int> Find(long long index) {
+  sjtu::vector<int> Find(KEY index) {
     index_file.open();
     data_file.open();
     sjtu::vector<int> v;

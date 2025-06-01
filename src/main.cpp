@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "../include/Ticket.hpp"
 #include "../include/TokenScanner.hpp"
 #include "../include/User.hpp"
 
@@ -23,7 +25,7 @@ int main() {
   return 0;
 }
 
-void processLine(std::string& line, UserSystem &user_system) {
+void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket_system) {
   TokenScanner scanner(line);
   std::string token = scanner.nextToken();
   std::cout << token << ' ';
@@ -119,6 +121,32 @@ void processLine(std::string& line, UserSystem &user_system) {
       std::cout << pair_.first << '\n';
     }
   } else if (token == "add_train") {
-
+    std::string trainID, stationNum, seatNum, stations, prices, startTime, travelTimes, stopoverTimes, saleDate, type;
+    while (scanner.hasMoreTokens()) {
+      token = scanner.nextToken();
+      if (token == "-i") {
+        trainID == scanner.nextToken();
+      } else if (token == "-n") {
+        stationNum = scanner.nextToken();
+      } else if (token == "-m") {
+        seatNum = scanner.nextToken();
+      } else if (token == "-s") {
+        stations = scanner.nextToken();
+      } else if (token == "-p") {
+        prices = scanner.nextToken();
+      } else if (token == "-x") {
+        startTime = scanner.nextToken();
+      } else if (token == "-t") {
+        travelTimes = scanner.nextToken();
+      } else if (token == "-o") {
+        stopoverTimes = scanner.nextToken();
+      } else if (token == "-d") {
+        saleDate = scanner.nextToken();
+      } else if (token == "-y") {
+        type = scanner.nextToken();
+      }
+    }
+    std::cout << ticket_system.add_train(trainID, std::stoi(stationNum), std::stoi(seatNum), stations, prices, startTime, travelTimes, stopoverTimes, saleDate, type);
+    std::cout << '\n';
   }
 }

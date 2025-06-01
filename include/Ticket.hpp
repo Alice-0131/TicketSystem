@@ -7,11 +7,13 @@
 #include "User.hpp"
 
 struct Station {
-  char StationName[32];
+  char StationName[32]{};
   Time ArrivingTime;
   Time LeavingTime;
-  int Price; // 累计
-  int DeltSeatNum[100]; // 差分数组
+  int Price{}; // 累计
+  int DeltSeatNum[100]{}; // 差分数组
+
+  Station() = default;
 };
 
 struct Train {
@@ -23,11 +25,24 @@ struct Train {
   Date SaleEnd;
   char type;
   bool is_released;
+
+  Train(std::string &trainID, int stationNum, int seatNum, std::string &stations,
+  std::string &prices, std::string &startTime, std::string &travelTimes, std::string &stopoverTimes,
+  std::string &salesDate, char type, bool is_released);
 };
 
 struct StationInfo {
   int index; // 该station是第几站
   int no; // 该station对应的列车所在文件的下标
+  char trainID[22];
+  Date start_date;
+  Date end_date;
+  Time arriving_time;
+  Time Leaving_time;
+};
+
+struct Seat {
+  int seat[102];
 };
 
 struct Ticket {
@@ -54,13 +69,14 @@ struct Order {
 
 class TicketSystem {
 private:
-  BPT TrainBPT;
-  MemoryRiver<Train> TrainInfo;
-  BPT StationBPT;
-  MemoryRiver<StationInfo> StationInfo;
-  BPT WaitingList;
-  BPT OrderBPT;
-  MemoryRiver<Order> OrderInfo;
+  BPT<long long> TrainBPT;
+  MemoryRiver<Train> TrainRiver;
+  MemoryRiver<Seat> SeatRiver;
+  BPT<long long> StationBPT;
+  MemoryRiver<StationInfo> StationRiver;
+  BPT<std::pair<long long, Date>> WaitingBPT;
+  BPT<long long> OrderBPT;
+  MemoryRiver<Order> OrderRiver;
 
 public:
   TicketSystem();

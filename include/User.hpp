@@ -24,7 +24,7 @@ struct User {
 class UserSystem {
 private:
   sjtu::map<long long, int> stack; // 哈希的username，对应的privilege，若未登入则为-1
-  BPT UserBPT;
+  BPT<long long> UserBPT;
   MemoryRiver<User, 1> UserRiver;
 
 public:
