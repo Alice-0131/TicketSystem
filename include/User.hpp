@@ -15,17 +15,14 @@ struct User {
   User() = default;
   User(const std::string &Username, const std::string &Password, const std::string &Name,
     const std::string &MailAddr, int Privilege);
-  friend std::ostream& operator<< (std::ostream &os, const User &user) {
-    os << user.Username << ' ' << user.Name << ' ' << user.MailAddr << ' ' << user.Privilege;
-    return os;
-  }
+  friend std::ostream& operator<<(std::ostream &os, const User &user);
 };
 
 class UserSystem {
 private:
   sjtu::map<long long, int> stack; // 哈希的username，对应的privilege，若未登入则为-1
-  BPT<long long> UserBPT;
-  MemoryRiver<User, 1> UserRiver;
+  BPT<> UserBPT;
+  MemoryRiver<User> UserRiver;
 
 public:
   UserSystem();
@@ -33,8 +30,8 @@ public:
     std::string &name, std::string &mailAddr, int privilege);
   int login(std::string &username, std::string &password);
   int logout(std::string &username);
-  std::pair<User, bool> query_profile(std::string &cur_username, std::string &username);
-  std::pair<User, bool> modify_profile(std::string &cur_username, std::string &username, std::string &password,
+  void query_profile(std::string &cur_username, std::string &username);
+  void modify_profile(std::string &cur_username, std::string &username, std::string &password,
     std::string &name, std::string &mailAddr, int privilege);
   void clean();
 };

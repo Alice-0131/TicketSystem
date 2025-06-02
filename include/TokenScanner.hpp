@@ -2,8 +2,6 @@
 #define TOKENSCANNER_HPP
 
 #include <string>
-
-#include "map.hpp"
 #include "vector.hpp"
 
 class TokenScanner {

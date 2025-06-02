@@ -160,7 +160,26 @@ CMakeFiles/TicketSystem.dir/src/main.cpp.o: \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc \
- /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/TokenScanner.hpp \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/Ticket.hpp \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/Time.hpp \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/vector.hpp \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/exceptions.hpp \
+ /usr/include/c++/11/cstddef /usr/include/c++/11/cstring \
+ /usr/include/string.h /usr/include/strings.h /usr/include/c++/11/climits \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h \
+ /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h \
+ /usr/include/linux/limits.h \
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/BPT.hpp \
+ /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
+ /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
+ /usr/include/c++/11/bits/fstream.tcc \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/MemoryRiver.hpp \
  /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/User.hpp \
  /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/map.hpp \
  /usr/include/c++/11/functional /usr/include/c++/11/tuple \
@@ -175,23 +194,7 @@ CMakeFiles/TicketSystem.dir/src/main.cpp.o: \
  /usr/include/c++/11/bits/enable_special_members.h \
  /usr/include/c++/11/bits/node_handle.h \
  /usr/include/c++/11/bits/unordered_map.h \
- /usr/include/c++/11/bits/erase_if.h /usr/include/c++/11/cstddef \
+ /usr/include/c++/11/bits/erase_if.h \
  /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/utility.hpp \
- /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/exceptions.hpp \
- /usr/include/c++/11/cstring /usr/include/string.h /usr/include/strings.h \
- /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/vector.hpp \
- /usr/include/c++/11/climits \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/limits.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h \
- /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
- /usr/include/x86_64-linux-gnu/bits/local_lim.h \
- /usr/include/linux/limits.h \
- /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
- /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
- /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
- /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/BPT.hpp \
- /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
- /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
- /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc \
- /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/MemoryRiver.hpp
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/TokenScanner.hpp \
+ /mnt/c/Users/阿丝儿心心/CLionProjects/TicketSystem/src/../include/User.hpp

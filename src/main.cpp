@@ -56,7 +56,8 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
         privilege = scanner.nextToken();
       }
     }
-    std::cout << user_system.add_user(cur_username, username, password, name, mailAddr, std::stoi(privilege)) << '\n';
+    std::cout << user_system.add_user(cur_username, username, password,
+      name, mailAddr, std::stoi(privilege)) << '\n';
   } else if (token == "login") {
     std::string username, password;
     while (scanner.hasMoreTokens()) {
@@ -70,12 +71,8 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
     std::cout << user_system.login(username, password) << '\n';
   } else if (token == "logout") {
     std::string username;
-    while (scanner.hasMoreTokens()) {
-      token = scanner.nextToken();
-      if (token == "-u") {
-        username = scanner.nextToken();
-      }
-    }
+    scanner.nextToken();
+    username = scanner.nextToken();
     std::cout << user_system.logout(username) << '\n';
   } else if (token == "query_profile") {
     std::string cur_username, username;
@@ -87,12 +84,8 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
         username = scanner.nextToken();
       }
     }
-    std::pair<User, bool> pair_ = user_system.query_profile(cur_username, username);
-    if (!pair_.second) {
-      std::cout << -1 << '\n';
-    } else {
-      std::cout << pair_.first << '\n';
-    }
+    user_system.query_profile(cur_username, username);
+    std::cout << '\n';
   } else if (token == "modify_profile") {
     std::string cur_username, username, password, name, mailAddr, privilege;
     while (scanner.hasMoreTokens()) {
@@ -114,12 +107,9 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
     if (privilege.empty()) {
       privilege = "-1";
     }
-    std::pair<User, bool> pair_ = user_system.modify_profile(cur_username, username, password, name, mailAddr, std::stoi(privilege));
-    if (!pair_.second) {
-      std::cout << -1 << '\n';
-    } else {
-      std::cout << pair_.first << '\n';
-    }
+    user_system.modify_profile(cur_username, username, password,
+      name, mailAddr, std::stoi(privilege));
+    std::cout << '\n';
   } else if (token == "add_train") {
     std::string trainID, stationNum, seatNum, stations, prices, startTime, travelTimes, stopoverTimes, saleDate, type;
     while (scanner.hasMoreTokens()) {
@@ -146,7 +136,45 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
         type = scanner.nextToken();
       }
     }
-    std::cout << ticket_system.add_train(trainID, std::stoi(stationNum), std::stoi(seatNum), stations, prices, startTime, travelTimes, stopoverTimes, saleDate, type);
+    std::cout << ticket_system.add_train(trainID, std::stoi(stationNum), std::stoi(seatNum),
+      stations, prices, startTime, travelTimes, stopoverTimes, saleDate, type);
     std::cout << '\n';
+  } else if (token == "delete_train") {
+    std::string trainID;
+    scanner.nextToken();
+    trainID = scanner.nextToken();
+    std::cout << ticket_system.delete_train(trainID) << '\n';
+  } else if (token == "release_train") {
+    std::string trainID;
+    scanner.nextToken();
+    trainID = scanner.nextToken();
+    std::cout << ticket_system.release_train(trainID) << '\n';
+  } else if (token == "query_train") {
+    std::string trainID, date;
+    while (scanner.hasMoreTokens()) {
+      token = scanner.nextToken();
+      if (token == "-i") {
+        trainID = scanner.nextToken();
+      } else if (token == "-d") {
+        date = scanner.nextToken();
+      }
+    }
+    ticket_system.query_train(trainID, date);
+    std::cout << '\n';
+  } else if (token == "query_ticket") {
+    std::string start, to, date, p = "time";
+    while (scanner.hasMoreTokens()) {
+      token = scanner.nextToken();
+      if (token == "-s") {
+        start = scanner.nextToken();
+      } else if (token == "-t") {
+        to = scanner.nextToken();
+      } else if (token == "-d") {
+        date = scanner.nextToken();
+      } else if (token == "-p") {
+        p = scanner.nextToken();
+      }
+    }
+    ticket_system.query_ticket(start, to, date, p);
   }
 }

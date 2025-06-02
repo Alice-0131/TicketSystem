@@ -1,7 +1,9 @@
 #ifndef MEMORYRIVER_HPP
 #define MEMORYRIVER_HPP
 
-template<class T, int info_len = 2>
+#include <fstream>
+
+template<class T, int info_len = 1>
 class MemoryRiver {
 private:
   std::fstream file;
@@ -28,19 +30,19 @@ public:
   //读出第n个int的值赋给tmp，1_base
   void get_info(int &tmp, int n) {
     if (n > info_len) return;
-    file.open(file_name, std::fstream::in | std::fstream::binary);
+    //file.open(file_name, std::fstream::in | std::fstream::binary);
     file.seekg((n - 1) * sizeof(int));
     file.read(reinterpret_cast<char *>(&tmp), sizeof(int));
-    file.close();
+    //file.close();
   }
 
   //将tmp写入第n个int的位置，1_base
   void write_info(int tmp, int n) {
     if (n > info_len) return;
-    file.open(file_name, std::fstream::in | std::fstream::out | std::fstream::binary);
+    //file.open(file_name, std::fstream::in | std::fstream::out | std::fstream::binary);
     file.seekp((n - 1) * sizeof(int));
     file.write(reinterpret_cast<char *>(&tmp), sizeof (int));
-    file.close();
+    //file.close();
   }
 
   //在文件合适位置写入类对象t，并返回写入的位置索引index

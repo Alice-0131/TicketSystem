@@ -10,36 +10,42 @@ User::User(const std::string &Username, const std::string &Password, const std::
   strcpy(this->MailAddr, MailAddr.c_str());
 }
 
+std::ostream& operator<< (std::ostream &os, const User &user) {
+  os << user.Username << ' ' << user.Name << ' ' << user.MailAddr << ' ' << user.Privilege;
+  return os;
+}
+
 UserSystem::UserSystem():UserBPT("user_bpt_index", "user_bpt_data"), UserRiver("user_river"){}
 
 int UserSystem::add_user(std::string &cur_username, std::string &username, std::string &password, std::string &name,
   std::string &mailAddr, int privilege) {
+  UserRiver.open();
   int size;
   long long hash = Hash(username);
   UserRiver.get_info(size, 1);
   if (size == 0) { // 建立初始账户
     User user(username, password, name, mailAddr, 10);
-    UserRiver.open();
     UserRiver.write(user, 0);
-    UserRiver.close();
     UserBPT.Insert(hash, 0);
     UserRiver.write_info(1, 1);
+    UserRiver.close();
     return 0;
   }
   long long cur_hash = Hash(cur_username);
   if (!stack.count(cur_hash) || stack[cur_hash] <= privilege) { // 权限不够或未登录
+    UserRiver.close();
     return -1;
   }
   sjtu::vector<int> no = UserBPT.Find(hash);
   if (!no.empty()) { // 账户已存在
+    UserRiver.close();
     return -1;
   }
   User user(username, password, name, mailAddr, privilege);
-  UserRiver.open();
   UserRiver.write(user, size);
-  UserRiver.close();
   UserBPT.Insert(hash, size++);
   UserRiver.write_info(size, 1);
+  UserRiver.close();
   return 0;
 }
 
@@ -74,42 +80,48 @@ int UserSystem::logout(std::string &username) {
   return 0;
 }
 
-std::pair<User, bool> UserSystem::query_profile(std::string &cur_username, std::string &username) {
+void UserSystem::query_profile(std::string &cur_username, std::string &username) {
   User user;
   long long cur_hash = Hash(cur_username);
   long long hash = Hash(username);
   if (!stack.count(cur_hash) || stack[cur_hash] == -1) { // 未登录
-    return {user, false};
+    std::cout << -1;
+    return;
   }
   sjtu::vector<int> no = UserBPT.Find(hash);
   if (no.empty()) { // 没有该账户
-    return {user, false};
+    std::cout << -1;
+    return;
   }
   UserRiver.open();
   UserRiver.read(user, no[0]);
   UserRiver.close();
   if (stack[cur_hash] <= user.Privilege && cur_hash != hash) { // 权限不够
-    return {user, false};
+    std::cout << -1;
+    return;
   }
-  return {user, true};
+  std::cout << user;
 }
 
-std::pair<User, bool> UserSystem::modify_profile(std::string &cur_username, std::string &username, std::string &password,
+void UserSystem::modify_profile(std::string &cur_username, std::string &username, std::string &password,
   std::string &name, std::string &mailAddr, int privilege) {
   User user;
   long long cur_hash = Hash(cur_username);
   long long hash = Hash(username);
   if (!stack.count(cur_hash) || stack[cur_hash] == -1) { // 未登录
-    return {user, false};
+    std::cout << -1;
+    return;
   }
   sjtu::vector<int> no = UserBPT.Find(hash);
   if (no.empty()) { // 没有该账户
-    return {user, false};
+    std::cout << -1;
+    return;
   }
   UserRiver.open();
   UserRiver.read(user, no[0]);
   if (stack[cur_hash] <= user.Privilege && cur_hash != hash || privilege >= stack[cur_hash]) { // 权限不够
-    return {user, false};
+    std::cout << -1;
+    return;
   }
   if (!password.empty()) {
     strcpy(user.Password, password.c_str());
@@ -125,5 +137,5 @@ std::pair<User, bool> UserSystem::modify_profile(std::string &cur_username, std:
   }
   UserRiver.write(user, no[0]);
   UserRiver.close();
-  return {user, true};
+  std::cout << user;
 }

@@ -19,15 +19,15 @@ inline long long Hash(std::string &s) {
 const int M = 50;
 const int L = 50;
 
-template<class KEY>
+template<class KEY = long long, class VALUE = int>
 class BPT {
 private:
   struct pair {
     KEY index;
-    int value;
+    VALUE value;
 
     pair():index(0), value(0){}
-    pair(KEY i, int v): index(i), value(v){}
+    pair(KEY i, VALUE v): index(i), value(v){}
     bool operator<(const pair other) {
       if (index < other.index) {
         return true;
@@ -68,34 +68,17 @@ private:
     DataBlock(int p = -1, int s = 1, int n = -1): ptr(p), size(s), nxt(n){}
   };
 
-  MemoryRiver<IndexBlock> index_file;
+  MemoryRiver<IndexBlock, 2> index_file;
   MemoryRiver<DataBlock> data_file;
   int index_root;
   int size_of_index;
   int size_of_data;
-  // int compare(pair a, pair b) {
-  //   if (a.index < b.index) {
-  //     return -1;
-  //   }
-  //   if (a.index > b.index) {
-  //     return 1;
-  //   }
-  //   if (a.value < b.value) {
-  //     return -1;
-  //   }
-  //   if (a.value == b.value) {
-  //     return 0;
-  //   }
-  //   else {
-  //     return 1;
-  //   }
-  // }
 
   int upper_bound(pair a[], int size, pair target) { // 第一个大于target的下标
     int l = 0, r = size - 1;
     while (l <= r) {
       int mid = (l + r) / 2;
-      if (a[mid] < target) {
+      if (a[mid] < target || a[mid] == target) {
         l = mid + 1;
       } else {
         r = mid - 1;
@@ -199,7 +182,7 @@ private:
         return false;
       }
       --k;
-      if (!data_block.data[k]== pair_) {
+      if (!(data_block.data[k]== pair_)) {
         return false;
       }
       --data_block.size;
@@ -426,15 +409,23 @@ private:
 public:
   BPT(const std::string& file1_name, const std::string& file2_name):
   index_file(file1_name), data_file(file2_name) {
-    index_file.get_info(index_root, 1);
-    index_file.get_info(size_of_index, 2);
-    data_file.get_info(size_of_data, 2);
+    index_file.open();
+    data_file.open();
+    index_file.get_info(index_root, 2);
+    index_file.get_info(size_of_index, 1);
+    data_file.get_info(size_of_data, 1);
+    index_file.close();
+    data_file.close();
   };
 
   ~BPT() {
-    index_file.write_info(index_root, 1);
-    index_file.write_info(size_of_index, 2);
-    data_file.write_info(size_of_data, 2);
+    index_file.open();
+    data_file.open();
+    index_file.write_info(index_root, 2);
+    index_file.write_info(size_of_index, 1);
+    data_file.write_info(size_of_data, 1);
+    index_file.close();
+    data_file.close();
   }
 
   void Print() {
@@ -446,7 +437,7 @@ public:
     data_file.close();
   }
 
-  void Insert(KEY index, int value) {
+  void Insert(KEY index, VALUE value) {
     index_file.open();
     data_file.open();
     pair pair_(index, value);
@@ -485,7 +476,7 @@ public:
     data_file.close();
   }
 
-  void Delete(KEY index, int value) {
+  void Delete(KEY index, VALUE value) {
     index_file.open();
     data_file.open();
     pair pair_(index, value);
@@ -506,10 +497,10 @@ public:
     data_file.close();
   }
 
-  sjtu::vector<int> Find(KEY index) {
+  sjtu::vector<VALUE> Find(KEY index) {
     index_file.open();
     data_file.open();
-    sjtu::vector<int> v;
+    sjtu::vector<VALUE> v;
     if (!size_of_index) { // 没有任何数据
       index_file.close();
       data_file.close();
