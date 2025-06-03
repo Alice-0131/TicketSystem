@@ -27,6 +27,7 @@ struct Time{
   Time(int m = 0, int h = 0, int d = 0);
   Time operator+(const Time &other) const;
   int operator-(const Time &other) const;
+  bool operator<(const Time &other) const; // 不管day
   friend std::ostream& operator<<(std::ostream &os, const Time &time);
 };
 

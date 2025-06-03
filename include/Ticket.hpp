@@ -50,7 +50,7 @@ struct Ticket {
   int time{};
 
   Ticket() = default;
-  Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price, int num, int time);
+  Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price, int num);
   friend std::ostream& operator<<(std::ostream &os, const Ticket &ticket);
 };
 
@@ -68,13 +68,26 @@ struct cmp_c {
     if (a.price != b.price) {
       return a.price > b.price;
     }
-    return strcmp(a.TrainID, b.TrainID);
+    if (strcmp(a.TrainID, b.TrainID) > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 };
 
 struct TransferTicket {
   Ticket ticket1;
   Ticket ticket2;
+  int time{};
+
+  TransferTicket() = default;
+  TransferTicket(Ticket ticket1, Ticket ticket2);
+
+  friend std::ostream& operator<<(std::ostream &os, const TransferTicket &transfer_ticket);
+
+  static int cmp_t(TransferTicket &a, TransferTicket &b);
+  static int cmp_c(TransferTicket &a, TransferTicket &b);
 };
 
 struct Order {

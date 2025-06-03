@@ -31,8 +31,10 @@ StationNum(stationNum), SeatNum(seatNum), type(type), is_released(is_released), 
   SaleEnd = {std::stoi(sale_end[1]), std::stoi(sale_end[0])};
 }
 
-Ticket::Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price,int num, int time):
-LeavingDate(leaving_date), LeavingTime(leaving_time),ArrivingTime(arriving_time),price(price), num(num), time(time){}
+Ticket::Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price,int num):
+LeavingDate(leaving_date), LeavingTime(leaving_time),ArrivingTime(arriving_time),price(price), num(num) {
+  time = arriving_time - leaving_time;
+}
 
 std::ostream& operator<<(std::ostream &os, const Ticket &ticket) {
   os << ticket.TrainID << ' ' << ticket.From << ' ';
@@ -43,14 +45,55 @@ std::ostream& operator<<(std::ostream &os, const Ticket &ticket) {
   return os;
 }
 
+TransferTicket::TransferTicket(Ticket ticket1, Ticket ticket2): ticket1(ticket1), ticket2(ticket2) {
+  time = ticket2.ArrivingTime - ticket1.LeavingTime;
+}
+
+int TransferTicket::cmp_t(TransferTicket &a, TransferTicket &b) {
+  if (a.time > b.time) {
+    return 1;
+  } else if (a.time < b.time) {
+    return -1;
+  }
+  if (a.ticket1.price + a.ticket2.price > b.ticket1.price + b.ticket2.price) {
+    return 1;
+  } else if (a.ticket1.price + a.ticket2.price < b.ticket1.price + b.ticket2.price) {
+    return -1;
+  }
+  if (strcmp(a.ticket1.TrainID, b.ticket1.TrainID) != 0) {
+    return strcmp(a.ticket1.TrainID, b.ticket1.TrainID);
+  }
+  return strcmp(a.ticket2.TrainID, b.ticket2.TrainID);
+}
+
+int TransferTicket::cmp_c(TransferTicket &a, TransferTicket &b) {
+  if (a.ticket1.price + a.ticket2.price > b.ticket1.price + b.ticket2.price) {
+    return 1;
+  } else if (a.ticket1.price + a.ticket2.price < b.ticket1.price + b.ticket2.price) {
+    return -1;
+  }
+  if (a.time > b.time) {
+    return 1;
+  } else if (a.time < b.time) {
+    return -1;
+  }
+  if (strcmp(a.ticket1.TrainID, b.ticket1.TrainID) != 0) {
+    return strcmp(a.ticket1.TrainID, b.ticket1.TrainID);
+  }
+  return strcmp(a.ticket2.TrainID, b.ticket2.TrainID);
+}
+
+std::ostream& operator<<(std::ostream &os, const TransferTicket &transfer_ticket) {
+  os << transfer_ticket.ticket1 << '\n' << transfer_ticket.ticket2;
+  return os;
+}
+
 bool StationInfo::operator<(const StationInfo &other) const{
   return train_no < other.train_no;
 }
-
 bool StationInfo::operator==(const StationInfo &other) const {
   return train_no == other.train_no;
 }
-
 
 TicketSystem::TicketSystem(): TrainBPT("train_bpt_index", "train_bpt_data"),
 StationBPT("station_bpt_index", "station_bpt_data"),
@@ -118,11 +161,11 @@ int TicketSystem::release_train(std::string &trainID) {
   train.is_released = true;
   TrainRiver.write(train, no[0]);
   TrainRiver.close();
-  int size;
   for (int i = 0; i < train.StationNum; ++i) {
     std::string str(train.stations[i].StationName);
     StationBPT.Insert(Hash(str), {no[0], i});
   }
+  return 0;
 }
 
 void TicketSystem::query_train(std::string &trainID, std::string &date) {
@@ -222,9 +265,8 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
         min = std::max(min, seat_num);
       }
       Date da = d - train.stations[f].LeavingTime.day;
-      Ticket ticket(da, train.stations[f].LeavingTime,
-        train.stations[t].ArrivingTime, train.stations[t].Price - train.stations[f].Price, min,
-        train.stations[t].ArrivingTime - train.stations[f].LeavingTime);
+      Ticket ticket(da, train.stations[f].LeavingTime,train.stations[t].ArrivingTime,
+        train.stations[t].Price - train.stations[f].Price, min);
       strcpy(ticket.From, train.stations[f].StationName);
       strcpy(ticket.To, train.stations[t].StationName);
       strcpy(ticket.TrainID, train.TrainID);
@@ -263,8 +305,7 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
       }
       Date da = d - train.stations[f].LeavingTime.day;
       Ticket ticket(da, train.stations[f].LeavingTime,
-        train.stations[t].ArrivingTime, train.stations[t].Price - train.stations[f].Price, min,
-        train.stations[t].ArrivingTime - train.stations[f].LeavingTime);
+        train.stations[t].ArrivingTime, train.stations[t].Price - train.stations[f].Price, min);
       strcpy(ticket.From, train.stations[f].StationName);
       strcpy(ticket.To, train.stations[t].StationName);
       strcpy(ticket.TrainID, train.TrainID);
@@ -278,4 +319,110 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
       std::cout << ticket << '\n';
     }
   }
+}
+
+void TicketSystem::query_transfer(std::string &from, std::string &to, std::string &date, std::string &p) {
+  long long hash_from = Hash(from);
+  long long hash_to = Hash(to);
+  sjtu::vector<StationInfo> from_no = StationBPT.Find(hash_from);
+  sjtu::vector<StationInfo> to_no = StationBPT.Find(hash_to);
+  sjtu::vector<std::string> v = TokenScanner::separate(date, "-");
+  const Date d(stoi(v[1]), stoi(v[0]));
+  Train train1, train2;
+  TransferTicket min_transfer_ticket;
+  bool flag = false;
+  TrainRiver.open();
+  SeatRiver.open();
+  int f, t;
+  for (int i = 0; i < from_no.size(); ++i) {
+    TrainRiver.read(train1, from_no[i].train_no);
+    f = from_no[i].index;
+    if (d < train1.SaleStart + train1.stations[f].LeavingTime.day ||
+      d > train1.SaleEnd + train1.stations[f].LeavingTime.day) {
+      continue;
+    }
+    Date train1_leaving_date = d - train1.stations[f].LeavingTime.day;
+    for (int k = 0; k < to_no.size(); ++k) {
+      TrainRiver.read(train2, to_no[k].train_no);
+      t = to_no[k].index;
+      if (d < train2.SaleStart || d > train2.SaleEnd + 3 || from_no[i].train_no == to_no[k].train_no) {
+        continue;
+      }
+      for (int j = f + 1; j < train1.StationNum; ++j) {
+        for (int l = 0; l < t; ++l) {
+          if (strcmp(train1.stations[j].StationName, train2.stations[l].StationName) != 0) {
+            continue;
+          }
+          Time arrive_transfer_time = train1.stations[j].ArrivingTime;
+          Time leave_transfer_time = train2.stations[l].LeavingTime;
+          if (train2.SaleEnd + leave_transfer_time.day < train1_leaving_date + arrive_transfer_time.day) {
+            continue;
+          }
+          if (train2.SaleEnd + leave_transfer_time.day == train1_leaving_date + arrive_transfer_time.day &&
+            leave_transfer_time < arrive_transfer_time) {
+            continue;
+          }
+          Date train2_leaving_date;
+          if (train2.SaleStart + leave_transfer_time.day > train1_leaving_date + arrive_transfer_time.day ||
+            train2.SaleStart + leave_transfer_time.day > train1_leaving_date + arrive_transfer_time.day &&
+            !(leave_transfer_time < arrive_transfer_time)) { // 最早班车即可换乘
+            train2_leaving_date = train2.SaleStart;
+          } else {
+            if (leave_transfer_time < arrive_transfer_time) { // 要延后一天换乘
+              train2_leaving_date = train1_leaving_date + (arrive_transfer_time.day - leave_transfer_time.day + 1);
+            } else {
+              train2_leaving_date = train1_leaving_date + (arrive_transfer_time.day - leave_transfer_time.day);
+            }
+          }
+          int num1 = train1.SeatNum, num2 = train2.SeatNum;
+          int min1 = num1, min2 = num2;
+          Seat seat1, seat2;
+          SeatRiver.read(seat1, train1.seat_no + (train1_leaving_date - train1.SaleStart));
+          SeatRiver.read(seat2, train2.seat_no + (train2_leaving_date - train2.SaleStart));
+          int x = 0;
+          for (; x < f; ++x) {
+            num1 += seat1.seat[x];
+          }
+          for (; x < j; ++x) {
+            num1 += seat1.seat[x];
+            min1 = std::min(min1, num1);
+          }
+          x = 0;
+          for (; x < l; ++x) {
+            num2 += seat2.seat[x];
+          }
+          for (; x < t; ++x) {
+            num2 += seat2.seat[x];
+            min2 = std::min(min2, num2);
+          }
+          Ticket ticket1(train1_leaving_date, train1.stations[f].LeavingTime,
+            arrive_transfer_time, train1.stations[j].Price - train1.stations[f].Price, min1);
+          Ticket ticket2(train2_leaving_date, leave_transfer_time,
+            train2.stations[t].ArrivingTime, train2.stations[t].Price - train2.stations[l].Price, min2);
+          TransferTicket transfer_ticket(ticket1, ticket2);
+          if (!flag) {
+            min_transfer_ticket = transfer_ticket;
+            flag = true;
+          } else {
+            if (p == "time") {
+              if (TransferTicket::cmp_t(transfer_ticket, min_transfer_ticket) < 0) {
+                min_transfer_ticket = transfer_ticket;
+              }
+            } else {
+              if (TransferTicket::cmp_c(transfer_ticket, min_transfer_ticket) < 0) {
+                min_transfer_ticket = transfer_ticket;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (!flag) {
+    std::cout << "0\n";
+  } else {
+    std::cout << min_transfer_ticket << '\n';
+  }
+  TrainRiver.close();
+  SeatRiver.close();
 }

@@ -80,7 +80,9 @@ std::ostream& operator<<(std::ostream &os, const Date &date) {
   return os;
 }
 
-Time::Time(int m, int h, int d): minute(m), hour(h), day(d) {}
+Time::Time(int m, int h, int d): minute(m), hour(h), day(d) {
+  adjust();
+}
 
 void Time::adjust() {
   hour += minute / 60;
@@ -102,6 +104,12 @@ int Time::operator-(const Time &other) const {
   return tmp.minute;
 }
 
+bool Time::operator<(const Time &other) const {
+  if (hour != other.hour) {
+    return hour < other.hour;
+  }
+  return minute < other.minute;
+}
 
 std::ostream& operator<<(std::ostream &os, const Time &time) {
   if (time.hour < 10) {
