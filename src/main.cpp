@@ -6,26 +6,29 @@
 #include "../include/TokenScanner.hpp"
 #include "../include/User.hpp"
 
+void processLine(std::string& line, UserSystem &user_system, TicketSystem &ticket_system);
+
 int main() {
   UserSystem user_system;
+  TicketSystem ticket_system;
   while (true) {
     std::string input;
     if (!std::getline(std::cin, input)) {
-      //login_stack.end();
-      //book_system.end();
+      user_system.end();
+      ticket_system.end();
       return 0;
     }
     if (input.empty()) {
       continue;
     }
-    //processLine(input, login_stack, book_system, diary);
+    processLine(input, user_system, ticket_system);
   }
-  //login_stack.end();
-  //book_system.end();
+  user_system.end();
+  ticket_system.end();
   return 0;
 }
 
-void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket_system) {
+void processLine(std::string& line, UserSystem &user_system, TicketSystem& ticket_system) {
   TokenScanner scanner(line);
   std::string token = scanner.nextToken();
   std::cout << token << ' ';
@@ -34,8 +37,8 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
     return;
   }
   if (token == "exit") {
-    //login_stack.end();
-    //book_system.end();
+    user_system.end();
+    ticket_system.end();
     std::cout << "bye";
     exit(0);
   } else if (token == "add_user") {
@@ -176,5 +179,62 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem ticket
       }
     }
     ticket_system.query_ticket(start, to, date, p);
+  } else if (token == "query_transfer") {
+    std::string start, to, date, p = "time";
+    while (scanner.hasMoreTokens()) {
+      token = scanner.nextToken();
+      if (token == "-s") {
+        start = scanner.nextToken();
+      } else if (token == "-t") {
+        to = scanner.nextToken();
+      } else if (token == "-d") {
+        date = scanner.nextToken();
+      } else if (token == "-p") {
+        p = scanner.nextToken();
+      }
+    }
+    ticket_system.query_transfer(start, to, date, p);
+  } else if (token == "buy_ticket") {
+    std::string username, trainID, date, from, to, n, q;
+    while (scanner.hasMoreTokens()) {
+      token = scanner.nextToken();
+      if (token == "-u") {
+        username = scanner.nextToken();
+      } else if (token == "-i") {
+        trainID = scanner.nextToken();
+      } else if (token == "-d") {
+        date = scanner.nextToken();
+      } else if (token == "-f") {
+        from = scanner.nextToken();
+      } else if (token == "-t") {
+        to = scanner.nextToken();
+      } else if (token == "-n") {
+        n = scanner.nextToken();
+      } else if (token == "-q") {
+        q = scanner.nextToken();
+      }
+    }
+    ticket_system.buy_ticket(username, trainID, date,
+      from, to, std::stoi(n), q, user_system);
+    std::cout << '\n';
+  } else if (token == "query_order") {
+    scanner.nextToken();
+    std::string username = scanner.nextToken();
+    ticket_system.query_order(username, user_system);
+  } else if (token == "refund_ticket") {
+    std::string username, n = "1";
+    while (scanner.hasMoreTokens()) {
+      token = scanner.nextToken();
+      if (token == "-u") {
+        username = scanner.nextToken();
+      } else if (token == "-n") {
+        n = scanner.nextToken();
+      }
+    }
+    std::cout << ticket_system.refund_ticket(username, std::stoi(n), user_system) << '\n';
+  } else if (token == "clean") {
+    std::cout << "0\n";
+    user_system.clean();
+    ticket_system.clean();
   }
 }

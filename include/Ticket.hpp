@@ -36,21 +36,24 @@ struct Train {
 
 struct Seat {
   int seat[102]{};
+  int max;
 };
 
 struct Ticket {
   char TrainID[22]{};
   char From[32]{};
+  int f;
   Date LeavingDate; // 存的是列车始发站的日期
   Time LeavingTime;
   char To[32]{};
+  int t;
   Time ArrivingTime;
   int price{};
   int num{};
   int time{};
 
   Ticket() = default;
-  Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price, int num);
+  Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price, int num, int f, int t);
   friend std::ostream& operator<<(std::ostream &os, const Ticket &ticket);
 };
 
@@ -92,7 +95,12 @@ struct TransferTicket {
 
 struct Order {
   Ticket ticket;
-  int status;
+  int status; // 0:pending, 1:success, -1:refunded
+
+  Order() = default;
+  Order(Ticket ticket, int status):ticket(ticket), status(status){}
+
+  friend std::ostream& operator<<(std::ostream &os, const Order &order);
 };
 
 struct StationInfo{
@@ -105,7 +113,14 @@ struct StationInfo{
 
 struct WaitingInfo {
   long long trainID;
-  Date date;
+  int date;
+
+  WaitingInfo() = default;
+  WaitingInfo(long long trainID, int date):trainID(trainID), date(date){}
+
+  bool operator==(const WaitingInfo &) const;
+  bool operator<(const WaitingInfo &other) const;
+  bool operator>(const WaitingInfo &other) const;
 };
 
 class TicketSystem {
@@ -128,11 +143,17 @@ public:
   void query_train(std::string &trainID, std::string &Date);
   void query_ticket(std::string &from, std::string &to, std::string &date, std::string &p);
   void query_transfer(std::string &from, std::string &to, std::string &date, std::string &p);
-  void buy_ticket(std::string &username, std::string &trainID,
-    std::string &date, std::string &from, std::string &to, int n, UserSystem &user_system);
-  void &query_order(std::string &username, UserSystem &user_system);
+  void buy_ticket(std::string &username, std::string &trainID, std::string &date,
+    std::string &from, std::string &to, int n, std::string &q, UserSystem &user_system);
+  void query_order(std::string &username, UserSystem &user_system);
   int refund_ticket(std::string &username, int n, UserSystem &user_system);
   void clean();
+  void end() {
+    TrainBPT.end();
+    StationBPT.end();
+    WaitingBPT.end();
+    OrderBPT.end();
+  }
 };
 
 #endif //TICKET_HPP

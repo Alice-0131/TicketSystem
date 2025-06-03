@@ -26,7 +26,7 @@ private:
     KEY index;
     VALUE value;
 
-    pair():index(0), value(0){}
+    pair():index(), value(){}
     pair(KEY i, VALUE v): index(i), value(v){}
     bool operator<(const pair other) {
       if (index < other.index) {
@@ -418,7 +418,17 @@ public:
     data_file.close();
   };
 
-  ~BPT() {
+  // ~BPT() {
+  //   index_file.open();
+  //   data_file.open();
+  //   index_file.write_info(index_root, 2);
+  //   index_file.write_info(size_of_index, 1);
+  //   data_file.write_info(size_of_data, 1);
+  //   index_file.close();
+  //   data_file.close();
+  // }
+
+  void end() {
     index_file.open();
     data_file.open();
     index_file.write_info(index_root, 2);

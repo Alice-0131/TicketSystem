@@ -139,3 +139,10 @@ void UserSystem::modify_profile(std::string &cur_username, std::string &username
   UserRiver.close();
   std::cout << user;
 }
+
+void UserSystem::clean() {
+  std::remove("user_bpt_index");
+  std::remove("user_bpt_data");
+  std::remove("user_river");
+  stack.clear();
+}

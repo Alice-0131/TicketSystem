@@ -31,8 +31,8 @@ StationNum(stationNum), SeatNum(seatNum), type(type), is_released(is_released), 
   SaleEnd = {std::stoi(sale_end[1]), std::stoi(sale_end[0])};
 }
 
-Ticket::Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price,int num):
-LeavingDate(leaving_date), LeavingTime(leaving_time),ArrivingTime(arriving_time),price(price), num(num) {
+Ticket::Ticket(Date &leaving_date, Time &leaving_time, Time &arriving_time, int price,int num, int f, int t):
+LeavingDate(leaving_date), LeavingTime(leaving_time),ArrivingTime(arriving_time),price(price), num(num), f(f), t(t) {
   time = arriving_time - leaving_time;
 }
 
@@ -95,6 +95,37 @@ bool StationInfo::operator==(const StationInfo &other) const {
   return train_no == other.train_no;
 }
 
+std::ostream& operator<<(std::ostream &os, const Order &order) {
+  if (order.status == 1) {
+    std::cout << "[success] ";
+  } else if (order.status == 0) {
+    std::cout << "[pending] ";
+  } else {
+    std::cout << "[refunded] ";
+  }
+  std::cout << order.ticket;
+  return os;
+}
+
+bool WaitingInfo::operator==(const WaitingInfo &other) const {
+  return (trainID == other.trainID && date == other.date);
+}
+
+bool WaitingInfo::operator<(const WaitingInfo &other) const {
+  if (trainID != other.trainID) {
+    return trainID < other.trainID;
+  }
+  return date < other.date;
+}
+
+bool WaitingInfo::operator>(const WaitingInfo &other) const {
+  if (trainID != other.trainID) {
+    return trainID > other.trainID;
+  }
+  return date > other.date;
+}
+
+
 TicketSystem::TicketSystem(): TrainBPT("train_bpt_index", "train_bpt_data"),
 StationBPT("station_bpt_index", "station_bpt_data"),
 WaitingBPT("waiting_bpt_index", "waiting_bpt_data"),
@@ -114,6 +145,7 @@ int TicketSystem::add_train(std::string &trainID, int stationNum, int seatNum, s
   Train train(trainID, stationNum, seatNum, stations, prices, startTime, travelTimes,
     stopoverTimes, salesDate, type[0], false, size);
   Seat seat;
+  seat.max = train.SeatNum;
   for (int i = 0; i < train.SaleEnd - train.SaleStart; ++i) {
     SeatRiver.write(seat, size++);
   }
@@ -266,7 +298,7 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
       }
       Date da = d - train.stations[f].LeavingTime.day;
       Ticket ticket(da, train.stations[f].LeavingTime,train.stations[t].ArrivingTime,
-        train.stations[t].Price - train.stations[f].Price, min);
+        train.stations[t].Price - train.stations[f].Price, min, f, t);
       strcpy(ticket.From, train.stations[f].StationName);
       strcpy(ticket.To, train.stations[t].StationName);
       strcpy(ticket.TrainID, train.TrainID);
@@ -305,7 +337,7 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
       }
       Date da = d - train.stations[f].LeavingTime.day;
       Ticket ticket(da, train.stations[f].LeavingTime,
-        train.stations[t].ArrivingTime, train.stations[t].Price - train.stations[f].Price, min);
+        train.stations[t].ArrivingTime, train.stations[t].Price - train.stations[f].Price, min, f, t);
       strcpy(ticket.From, train.stations[f].StationName);
       strcpy(ticket.To, train.stations[t].StationName);
       strcpy(ticket.TrainID, train.TrainID);
@@ -396,9 +428,9 @@ void TicketSystem::query_transfer(std::string &from, std::string &to, std::strin
             min2 = std::min(min2, num2);
           }
           Ticket ticket1(train1_leaving_date, train1.stations[f].LeavingTime,
-            arrive_transfer_time, train1.stations[j].Price - train1.stations[f].Price, min1);
+            arrive_transfer_time, train1.stations[j].Price - train1.stations[f].Price, min1, f, j);
           Ticket ticket2(train2_leaving_date, leave_transfer_time,
-            train2.stations[t].ArrivingTime, train2.stations[t].Price - train2.stations[l].Price, min2);
+            train2.stations[t].ArrivingTime, train2.stations[t].Price - train2.stations[l].Price, min2, l, t);
           TransferTicket transfer_ticket(ticket1, ticket2);
           if (!flag) {
             min_transfer_ticket = transfer_ticket;
@@ -418,11 +450,205 @@ void TicketSystem::query_transfer(std::string &from, std::string &to, std::strin
       }
     }
   }
+  TrainRiver.close();
+  SeatRiver.close();
   if (!flag) {
     std::cout << "0\n";
   } else {
     std::cout << min_transfer_ticket << '\n';
   }
+}
+
+void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::string &date,
+  std::string &from, std::string &to, int n, std::string &q, UserSystem &user_system) {
+  sjtu::vector<std::string> v = TokenScanner::separate(date, "-");
+  Date d(std::stoi(v[1]), std::stoi(v[0]));
+  long long user_hash = Hash(username);
+  long long train_hash = Hash(trainID);
+  if (!user_system.stack.count(user_hash) || user_system.stack[user_hash] == -1) { // 未登录
+    std::cout << -1;
+    return;
+  }
+  sjtu::vector<int> user_no = user_system.UserBPT.Find(user_hash);
+  if (user_no.empty()) { // 没有该账户
+    std::cout << -1;
+    return;
+  }
+  sjtu::vector<int> train_no = TrainBPT.Find(train_hash);
+  if (train_no.empty()) { // 没有这列车
+    std::cout << -1;
+    return;
+  }
+  Train train;
+  TrainRiver.open();
+  TrainRiver.read(train, train_no[0]);
   TrainRiver.close();
+  if (!train.is_released) {
+    std::cout << -1;
+    return;
+  }
+  Seat seat;
+  int x = 0;
+  for (; x < train.StationNum; ++x) {
+    if (strcmp(train.stations[x].StationName, from.c_str()) == 0) {
+      break;
+    }
+  }
+  if (x == train.StationNum) {
+    std::cout << -1;
+    return;
+  }
+  Date train_leave_date = d - train.stations[x].LeavingTime.day;
+  SeatRiver.open();
+  SeatRiver.read(seat, train.seat_no + (train_leave_date - train.SaleStart));
   SeatRiver.close();
+  int num = train.SeatNum;
+  int min = num;
+  int i = 0;
+  for (; i < x; ++i) {
+    num += seat.seat[i];
+  }
+  for (; i < train.StationNum; ++i) {
+    if (strcmp(train.stations[x].StationName, to.c_str()) == 0) {
+      break;
+    }
+    num += seat.seat[i];
+    min = std::min(min, num);
+  }
+  if (i == train.StationNum) {
+    std::cout << -1;
+    return;
+  }
+  int price = train.stations[i].Price - train.stations[x].Price;
+  if (min >= n) {
+    seat.seat[x] -= n;
+    seat.seat[i] += n;
+    std::cout << price * n;
+    Ticket ticket(train_leave_date, train.stations[x].LeavingTime,
+      train.stations[i].ArrivingTime, price, n, x, i);
+    Order order(ticket, 1);
+    int size;
+    OrderRiver.open();
+    OrderRiver.get_info(size, 1);
+    OrderRiver.write(order, size);
+    OrderRiver.write_info(size + 1, 1);
+    OrderRiver.close();
+    OrderBPT.Insert(user_hash, size++);
+    return;
+  }
+  if (q == "false") {
+    std::cout << -1;
+    return;
+  }
+  std::cout << "queue";
+  Ticket ticket(train_leave_date, train.stations[x].LeavingTime,
+      train.stations[i].ArrivingTime, price,n,x,i);
+  Order order(ticket, 0);
+  WaitingInfo waiting_info(train_hash, train_leave_date.day + train_leave_date.month * 31);
+  int size;
+  OrderRiver.open();
+  OrderRiver.get_info(size, 1);
+  OrderRiver.write(order, size);
+  OrderRiver.write_info(size + 1, 1);
+  OrderRiver.close();
+  WaitingBPT.Insert(waiting_info, size++);
+}
+
+void TicketSystem::query_order(std::string &username, UserSystem &user_system) {
+  long long user_hash = Hash(username);
+  if (!user_system.stack.count(user_hash) || user_system.stack[user_hash] == -1) { // 未登录
+    std::cout << -1 << '\n';
+    return;
+  }
+  sjtu::vector<int> user_no = user_system.UserBPT.Find(user_hash);
+  if (user_no.empty()) { // 没有该账户
+    std::cout << -1 << '\n';
+    return;
+  }
+  sjtu::vector<int> order_no = OrderBPT.Find(user_hash);
+  std::cout << order_no.size() << '\n';
+  Order order;
+  OrderRiver.open();
+  for (int i = order_no.size() - 1; i >= 0; --i) {
+    OrderRiver.read(order, order_no[i]);
+    std::cout << order << '\n';
+  }
+  OrderRiver.close();
+}
+
+int TicketSystem::refund_ticket(std::string &username, int n, UserSystem &user_system) {
+  long long user_hash = Hash(username);
+  if (!user_system.stack.count(user_hash) || user_system.stack[user_hash] == -1) { // 未登录
+    return -1;
+  }
+  sjtu::vector<int> user_no = user_system.UserBPT.Find(user_hash);
+  if (user_no.empty()) { // 没有该账户
+    return -1;
+  }
+  sjtu::vector<int> order_no = OrderBPT.Find(user_hash);
+  if (order_no.size() < n) {
+    return -1;
+  }
+  Order order;
+  OrderRiver.open();
+  OrderRiver.read(order, order_no[order_no.size() - n]);
+  order.status = -1;
+  OrderRiver.write(order, order_no[order_no.size() - n]);
+  std::string t(order.ticket.TrainID);
+  long long train_hash = Hash(t);
+  sjtu::vector<int> train_no = TrainBPT.Find(train_hash);
+  Train train;
+  Seat seat;
+  TrainRiver.open();
+  SeatRiver.open();
+  TrainRiver.read(train, train_no[0]);
+  SeatRiver.read(seat, train.seat_no + (order.ticket.LeavingDate - train.SaleStart));
+  seat.seat[order.ticket.f] += order.ticket.num;
+  seat.seat[order.ticket.t] -= order.ticket.num;
+  WaitingInfo waiting_info(train_hash, order.ticket.LeavingDate.day + order.ticket.LeavingDate.month * 31);
+  sjtu::vector<int> waiting = WaitingBPT.Find(waiting_info);
+  Order waiting_order;
+  for (int i = 0; i < waiting.size(); ++i) {
+    OrderRiver.read(waiting_order, waiting[i]);
+    if (waiting_order.ticket.f >= order.ticket.t || waiting_order.ticket.t <= order.ticket.f) {
+      continue;
+    }
+    int num = seat.max;
+    int min = num;
+    int x = 0;
+    for (; x < waiting_order.ticket.f; ++x) {
+      num += seat.seat[x];
+    }
+    for (; x < waiting_order.ticket.t; ++x) {
+      num += seat.seat[x];
+      min = std::min(min, num);
+    }
+    if (waiting_order.ticket.num > min) {
+      continue;
+    }
+    seat.seat[waiting_order.ticket.f] -= waiting_order.ticket.num;
+    seat.seat[waiting_order.ticket.t] += waiting_order.ticket.num;
+    waiting_order.status = 1;
+    OrderRiver.write(waiting_order, waiting[i]);
+    WaitingBPT.Delete(waiting_info,waiting[i]);
+  }
+  SeatRiver.write(seat, train.seat_no + (order.ticket.LeavingDate - train.SaleStart));
+  SeatRiver.close();
+  TrainRiver.close();
+  OrderRiver.close();
+  return 0;
+}
+
+void TicketSystem::clean() {
+  std::remove("train_bpt_index");
+  std::remove("train_bpt_data");
+  std::remove("station_bpt_index");
+  std::remove("station_bpt_data");
+  std::remove("waiting_bpt_index");
+  std::remove("waiting_bpt_data");
+  std::remove("order_bpt_index");
+  std::remove("order_bpt_data");
+  std::remove("train_river");
+  std::remove("seat_river");
+  std::remove("order_river");
 }

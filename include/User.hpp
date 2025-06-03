@@ -19,6 +19,7 @@ struct User {
 };
 
 class UserSystem {
+  friend class TicketSystem;
 private:
   sjtu::map<long long, int> stack; // 哈希的username，对应的privilege，若未登入则为-1
   BPT<> UserBPT;
@@ -34,6 +35,9 @@ public:
   void modify_profile(std::string &cur_username, std::string &username, std::string &password,
     std::string &name, std::string &mailAddr, int privilege);
   void clean();
+  void end() {
+    UserBPT.end();
+  }
 };
 
 #endif //USER_HPP
