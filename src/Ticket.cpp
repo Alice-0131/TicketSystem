@@ -385,7 +385,7 @@ void TicketSystem::query_transfer(std::string &from, std::string &to, std::strin
     for (int k = 0; k < to_no.size(); ++k) {
       TrainRiver.read(train2, to_no[k].train_no);
       t = to_no[k].index;
-      if (d < train2.SaleStart || d > train2.SaleEnd + 3 || from_no[i].train_no == to_no[k].train_no) {
+      if (d > train2.SaleEnd + 3 || from_no[i].train_no == to_no[k].train_no) {
         continue;
       }
       for (int j = f + 1; j < train1.StationNum; ++j) {
@@ -437,8 +437,14 @@ void TicketSystem::query_transfer(std::string &from, std::string &to, std::strin
           }
           Ticket ticket1(train1_leaving_date, train1.stations[f].LeavingTime,
             arrive_transfer_time, train1.stations[j].Price - train1.stations[f].Price, min1, f, j);
+          strcpy(ticket1.TrainID, train1.TrainID);
+          strcpy(ticket1.From, from.c_str());
+          strcpy(ticket1.To, train1.stations[j].StationName);
           Ticket ticket2(train2_leaving_date, leave_transfer_time,
             train2.stations[t].ArrivingTime, train2.stations[t].Price - train2.stations[l].Price, min2, l, t);
+          strcpy(ticket2.TrainID, train2.TrainID);
+          strcpy(ticket2.From, train2.stations[l].StationName);
+          strcpy(ticket2.To, to.c_str());
           TransferTicket transfer_ticket(ticket1, ticket2);
           if (!flag) {
             min_transfer_ticket = transfer_ticket;
