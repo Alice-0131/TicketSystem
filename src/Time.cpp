@@ -11,6 +11,10 @@ Date::Date(int d, int m):day(d), month(m) {
       if (day > 31) {
         day -= 31;
         ++month;
+        if (day > 31) {
+          day -= 31;
+          ++month;
+        }
       }
     }
   }
@@ -44,6 +48,12 @@ Date Date::operator+(const Date &other) const {
     }
   }
   if (tmp.month == 7) {
+    if (tmp.day > 31) {
+      ++tmp.month;
+      tmp.day -= 31;
+    }
+  }
+  if (tmp.month == 8) {
     if (tmp.day > 31) {
       ++tmp.month;
       tmp.day -= 31;
