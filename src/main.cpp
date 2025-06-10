@@ -195,7 +195,7 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem& ticke
     }
     ticket_system.query_transfer(start, to, date, p);
   } else if (token == "buy_ticket") {
-    std::string username, trainID, date, from, to, n, q;
+    std::string username, trainID, date, from, to, n, q = "false";
     while (scanner.hasMoreTokens()) {
       token = scanner.nextToken();
       if (token == "-u") {
