@@ -561,6 +561,9 @@ void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::
   std::cout << "queue";
   Ticket ticket(train_leave_date, train.stations[x].LeavingTime,
       train.stations[i].ArrivingTime, price,n,x,i);
+  strcpy(ticket.TrainID, trainID.c_str());
+  strcpy(ticket.From, from.c_str());
+  strcpy(ticket.To, to.c_str());
   Order order(ticket, 0);
   WaitingInfo waiting_info(train_hash, train_leave_date.day + train_leave_date.month * 31);
   int size;
@@ -569,7 +572,8 @@ void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::
   OrderRiver.write(order, size);
   OrderRiver.write_info(size + 1, 1);
   OrderRiver.close();
-  WaitingBPT.Insert(waiting_info, size++);
+  WaitingBPT.Insert(waiting_info, size);
+  OrderBPT.Insert(user_hash, size++);
 }
 
 void TicketSystem::query_order(std::string &username, UserSystem &user_system) {
