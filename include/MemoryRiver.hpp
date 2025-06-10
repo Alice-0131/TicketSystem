@@ -65,6 +65,9 @@ public:
 
   void open() {
     file.open(file_name, std::fstream::in | std::fstream::out | std::fstream::binary);
+    if (!file) {
+      std::cout << "error";
+    }
   }
   void close() {
     file.close();

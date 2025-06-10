@@ -3,7 +3,8 @@ project(TicketSystem)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(TicketSystem src/main.cpp
+add_executable(code
+        src/main.cpp
         include/vector.hpp
         include/BPT.hpp
         include/map.hpp

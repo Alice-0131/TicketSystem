@@ -1,20 +1,37 @@
 #include "../include/Time.hpp"
 #include "../include/Ticket.hpp"
 
-Date::Date(int d, int m):day(d), month(m){}
+Date::Date(int d, int m):day(d), month(m) {
+  if (month == 0 && day > 150) {
+    month += 6;
+    day -= 150;
+    if (day > 30) {
+      day -= 30;
+      ++month;
+      if (day > 31) {
+        day -= 31;
+        ++month;
+      }
+    }
+  }
+}
 
 int Date::operator-(const Date &other) const {
   Date tmp(day - other.day, month - other.month);
   if (tmp.month == 1) {
-    if (month == 6) {
+    if (other.month == 6) {
       return tmp.day + 30;
     } else {
       return tmp.day + 31;
     }
   } else if (tmp.month == 2) {
     return tmp.day + 61;
-  } else {
+  } else if (tmp.month == 0){
     return tmp.day;
+  } else if (tmp.month == 6 || tmp.month == 7) {
+    return (tmp.month - 1) * 30 + tmp.day;
+  } else {
+    return 211 + tmp.day;
   }
 }
 

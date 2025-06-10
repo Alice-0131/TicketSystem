@@ -118,7 +118,7 @@ void processLine(std::string& line, UserSystem &user_system, TicketSystem& ticke
     while (scanner.hasMoreTokens()) {
       token = scanner.nextToken();
       if (token == "-i") {
-        trainID == scanner.nextToken();
+        trainID = scanner.nextToken();
       } else if (token == "-n") {
         stationNum = scanner.nextToken();
       } else if (token == "-m") {

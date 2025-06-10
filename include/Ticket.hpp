@@ -12,7 +12,7 @@ struct Station {
   Time ArrivingTime;
   Time LeavingTime;
   int Price{}; // 累计
-  int DeltSeatNum[100]{}; // 差分数组
+  //int DeltSeatNum[100]{}; // 差分数组
 
   Station() = default;
 };

@@ -121,6 +121,7 @@ void UserSystem::modify_profile(std::string &cur_username, std::string &username
   UserRiver.read(user, no[0]);
   if (stack[cur_hash] <= user.Privilege && cur_hash != hash || privilege >= stack[cur_hash]) { // 权限不够
     std::cout << -1;
+    UserRiver.close();
     return;
   }
   if (!password.empty()) {

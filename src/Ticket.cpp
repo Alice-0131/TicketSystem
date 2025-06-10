@@ -10,7 +10,7 @@ StationNum(stationNum), SeatNum(seatNum), type(type), is_released(is_released), 
   sjtu::vector<std::string> station_name = TokenScanner::separate(station, "|");
   sjtu::vector<std::string> price = TokenScanner::separate(prices, "|");
   sjtu::vector<std::string> start_time = TokenScanner::separate(startTime, ":");
-  sjtu::vector<std::string> travel_time = TokenScanner::separate(travelTimes, ":");
+  sjtu::vector<std::string> travel_time = TokenScanner::separate(travelTimes, "|");
   sjtu::vector<std::string> stopover_time = TokenScanner::separate(stopoverTimes, "|");
   sjtu::vector<std::string> sale_date = TokenScanner::separate(salesDate, "|");
   sjtu::vector<std::string> sale_start = TokenScanner::separate(sale_date[0], "-");
@@ -26,7 +26,7 @@ StationNum(stationNum), SeatNum(seatNum), type(type), is_released(is_released), 
   }
   strcpy(stations[i].StationName, station_name[i].c_str());
   stations[i].ArrivingTime = stations[i - 1].LeavingTime + std::stoi(travel_time[i - 1]);
-  stations[i].Price = stations[i - 1].Price + std::stoi(price[i - 1]);;
+  stations[i].Price = stations[i - 1].Price + std::stoi(price[i - 1]);
   SaleStart = {std::stoi(sale_start[1]), std::stoi(sale_start[0])};
   SaleEnd = {std::stoi(sale_end[1]), std::stoi(sale_end[0])};
 }
@@ -39,7 +39,7 @@ LeavingDate(leaving_date), LeavingTime(leaving_time),ArrivingTime(arriving_time)
 std::ostream& operator<<(std::ostream &os, const Ticket &ticket) {
   os << ticket.TrainID << ' ' << ticket.From << ' ';
   os << ticket.LeavingDate + ticket.LeavingTime.day << ' ';
-  os << ticket.LeavingTime << " -> " << ticket.To;
+  os << ticket.LeavingTime << " -> " << ticket.To << ' ';
   os << ticket.LeavingDate + ticket.ArrivingTime.day << ' ';
   os << ticket.ArrivingTime << ' ' << ticket.price << ' ' << ticket.num;
   return os;
@@ -146,7 +146,7 @@ int TicketSystem::add_train(std::string &trainID, int stationNum, int seatNum, s
     stopoverTimes, salesDate, type[0], false, size);
   Seat seat;
   seat.max = train.SeatNum;
-  for (int i = 0; i < train.SaleEnd - train.SaleStart; ++i) {
+  for (int i = 0; i <= train.SaleEnd - train.SaleStart; ++i) {
     SeatRiver.write(seat, size++);
   }
   SeatRiver.write_info(size, 1);
@@ -241,9 +241,7 @@ void TicketSystem::query_train(std::string &trainID, std::string &date) {
   std::cout << train.stations[i].StationName << ' ';
   std::cout << d + train.stations[i].ArrivingTime.day << ' ' << train.stations[i].ArrivingTime ;
   std::cout << " -> xx-xx xx:xx ";
-  std::cout << train.stations[i].Price << ' ';
-  seat_num += seat.seat[i];
-  std::cout << seat_num;
+  std::cout << train.stations[i].Price << " x";
 }
 
 void TicketSystem::query_ticket(std::string &from, std::string &to, std::string &date, std::string &p) {
@@ -256,15 +254,22 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
   int i = 0, j = 0;
   while (i < from_no.size() && j < to_no.size()) {
     while (i < from_no.size() && from_no[i] < to_no[j]) ++i;
-    if (i < from_no.size() && from_no[i] == to_no[j] && from_no[i].index < to_no[j].index) {
-      fno.push_back(from_no[i]);
-      tno.push_back(to_no[i]);
+    if (i < from_no.size() && from_no[i] == to_no[j]) {
+      if (from_no[i].index < to_no[j].index) {
+        fno.push_back(from_no[i]);
+        tno.push_back(to_no[j]);
+      }
       ++i, ++j;
     }
+    if (i == from_no.size()) {
+      break;
+    }
     while (j < to_no.size() && to_no[j] < from_no[i]) ++j;
-    if (j < to_no.size() && from_no[i] == to_no[j] && from_no[i].index < to_no[j].index) {
-      fno.push_back(from_no[i]);
-      tno.push_back(to_no[i]);
+    if (j < to_no.size() && from_no[i] == to_no[j]) {
+      if (from_no[i].index < to_no[j].index) {
+        fno.push_back(from_no[i]);
+        tno.push_back(to_no[j]);
+      }
       ++i, ++j;
     }
   }
@@ -277,8 +282,8 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
     Train train;
     for (int i = 0; i < fno.size(); ++i) {
       TrainRiver.read(train, fno[i].train_no);
-      int f = from_no[i].index;
-      int t = to_no[i].index;
+      int f = fno[i].index;
+      int t = tno[i].index;
       if (d < train.SaleStart + train.stations[f].LeavingTime.day ||
         d > train.SaleEnd + train.stations[f].LeavingTime.day) {
         continue;
@@ -288,13 +293,14 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
       int seat_num = train.SeatNum, min = train.SeatNum;
       SeatRiver.open();
       SeatRiver.read(seat, train.seat_no + (d - train.SaleStart- train.stations[f].LeavingTime.day));
+      SeatRiver.close();
       int j = 0;
       for (; j < f; ++j) {
         seat_num += seat.seat[j];
       }
       for (; j < t; ++j) {
         seat_num += seat.seat[j];
-        min = std::max(min, seat_num);
+        min = std::min(min, seat_num);
       }
       Date da = d - train.stations[f].LeavingTime.day;
       Ticket ticket(da, train.stations[f].LeavingTime,train.stations[t].ArrivingTime,
@@ -317,23 +323,25 @@ void TicketSystem::query_ticket(std::string &from, std::string &to, std::string 
     Train train;
     for (int i = 0; i < fno.size(); ++i) {
       TrainRiver.read(train, fno[i].train_no);
-      int f = from_no[i].index;
-      int t = to_no[i].index;
+      int f = fno[i].index;
+      int t = tno[i].index;
       if (d < train.SaleStart + train.stations[f].LeavingTime.day ||
         d > train.SaleEnd + train.stations[f].LeavingTime.day) {
         continue;
-        }
+      }
+      ++sum;
       Seat seat;
       int seat_num = train.SeatNum, min = train.SeatNum;
       SeatRiver.open();
       SeatRiver.read(seat, train.seat_no + (d - train.SaleStart- train.stations[f].LeavingTime.day));
+      SeatRiver.close();
       int j = 0;
       for (; j < f; ++j) {
         seat_num += seat.seat[j];
       }
       for (; j < t; ++j) {
         seat_num += seat.seat[j];
-        min = std::max(min, seat_num);
+        min = std::min(min, seat_num);
       }
       Date da = d - train.stations[f].LeavingTime.day;
       Ticket ticket(da, train.stations[f].LeavingTime,
@@ -499,6 +507,10 @@ void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::
     return;
   }
   Date train_leave_date = d - train.stations[x].LeavingTime.day;
+  if (train_leave_date < train.SaleStart || train_leave_date > train.SaleEnd) {
+    std::cout << -1;
+    return;
+  }
   SeatRiver.open();
   SeatRiver.read(seat, train.seat_no + (train_leave_date - train.SaleStart));
   SeatRiver.close();
@@ -509,7 +521,7 @@ void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::
     num += seat.seat[i];
   }
   for (; i < train.StationNum; ++i) {
-    if (strcmp(train.stations[x].StationName, to.c_str()) == 0) {
+    if (strcmp(train.stations[i].StationName, to.c_str()) == 0) {
       break;
     }
     num += seat.seat[i];
@@ -523,9 +535,15 @@ void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::
   if (min >= n) {
     seat.seat[x] -= n;
     seat.seat[i] += n;
+    SeatRiver.open();
+    SeatRiver.write(seat, train.seat_no + (train_leave_date - train.SaleStart));
+    SeatRiver.close();
     std::cout << price * n;
     Ticket ticket(train_leave_date, train.stations[x].LeavingTime,
       train.stations[i].ArrivingTime, price, n, x, i);
+    strcpy(ticket.TrainID, trainID.c_str());
+    strcpy(ticket.From, from.c_str());
+    strcpy(ticket.To, to.c_str());
     Order order(ticket, 1);
     int size;
     OrderRiver.open();
