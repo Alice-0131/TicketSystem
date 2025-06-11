@@ -34,8 +34,10 @@ int Date::operator-(const Date &other) const {
     return tmp.day;
   } else if (tmp.month == 6 || tmp.month == 7) {
     return (tmp.month - 1) * 30 + tmp.day;
-  } else {
+  } else if (tmp.month == 8){
     return 211 + tmp.day;
+  } else {
+    return 242 + tmp.day;
   }
 }
 
