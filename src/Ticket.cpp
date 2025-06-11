@@ -503,6 +503,10 @@ void TicketSystem::buy_ticket(std::string &username, std::string &trainID, std::
     std::cout << -1;
     return;
   }
+  if (n > train.SeatNum) {
+    std::cout << -1;
+    return;
+  }
   Seat seat;
   int x = 0;
   for (; x < train.StationNum; ++x) {
@@ -637,6 +641,11 @@ int TicketSystem::refund_ticket(std::string &username, int n, UserSystem &user_s
   } else if (order.status == 1) {
     seat.seat[order.ticket.f] += order.ticket.num;
     seat.seat[order.ticket.t] -= order.ticket.num;
+  } else if (order.status == -1) {
+    OrderRiver.close();
+    TrainRiver.close();
+    SeatRiver.close();
+    return -1;
   }
   order.status = -1;
   OrderRiver.write(order, order_no[order_no.size() - n]);
