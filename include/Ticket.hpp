@@ -62,7 +62,11 @@ struct cmp_t {
     if (a.time != b.time) {
       return a.time > b.time;
     }
-    return strcmp(a.TrainID, b.TrainID);
+    if (strcmp(a.TrainID, b.TrainID) > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 };
 
