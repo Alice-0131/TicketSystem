@@ -47,6 +47,8 @@ std::ostream& operator<<(std::ostream &os, const Ticket &ticket) {
 
 TransferTicket::TransferTicket(Ticket ticket1, Ticket ticket2): ticket1(ticket1), ticket2(ticket2) {
   time = ticket2.ArrivingTime - ticket1.LeavingTime;
+  int d = ticket2.LeavingDate - ticket1.LeavingDate;
+  time += d * 1440;
 }
 
 int TransferTicket::cmp_t(TransferTicket &a, TransferTicket &b) {
@@ -404,7 +406,7 @@ void TicketSystem::query_transfer(std::string &from, std::string &to, std::strin
           }
           Date train2_leaving_date;
           if (train2.SaleStart + leave_transfer_time.day > train1_leaving_date + arrive_transfer_time.day ||
-            train2.SaleStart + leave_transfer_time.day > train1_leaving_date + arrive_transfer_time.day &&
+            train2.SaleStart + leave_transfer_time.day == train1_leaving_date + arrive_transfer_time.day &&
             !(leave_transfer_time < arrive_transfer_time)) { // 最早班车即可换乘
             train2_leaving_date = train2.SaleStart;
           } else {
