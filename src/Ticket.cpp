@@ -620,8 +620,6 @@ int TicketSystem::refund_ticket(std::string &username, int n, UserSystem &user_s
   Order order;
   OrderRiver.open();
   OrderRiver.read(order, order_no[order_no.size() - n]);
-  order.status = -1;
-  OrderRiver.write(order, order_no[order_no.size() - n]);
   std::string t(order.ticket.TrainID);
   long long train_hash = Hash(t);
   sjtu::vector<int> train_no = TrainBPT.Find(train_hash);
@@ -631,8 +629,15 @@ int TicketSystem::refund_ticket(std::string &username, int n, UserSystem &user_s
   SeatRiver.open();
   TrainRiver.read(train, train_no[0]);
   SeatRiver.read(seat, train.seat_no + (order.ticket.LeavingDate - train.SaleStart));
-  seat.seat[order.ticket.f] += order.ticket.num;
-  seat.seat[order.ticket.t] -= order.ticket.num;
+  if (order.status == 0) {
+    std::string str(order.ticket.TrainID);
+    WaitingBPT.Delete({Hash(str), order.ticket.LeavingDate.day + order.ticket.LeavingDate.month * 31}, order_no[order_no.size() - n]);
+  } else if (order.status == 1) {
+    seat.seat[order.ticket.f] += order.ticket.num;
+    seat.seat[order.ticket.t] -= order.ticket.num;
+  }
+  order.status = -1;
+  OrderRiver.write(order, order_no[order_no.size() - n]);
   WaitingInfo waiting_info(train_hash, order.ticket.LeavingDate.day + order.ticket.LeavingDate.month * 31);
   sjtu::vector<int> waiting = WaitingBPT.Find(waiting_info);
   Order waiting_order;
